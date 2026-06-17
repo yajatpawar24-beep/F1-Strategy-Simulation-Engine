@@ -1,0 +1,245 @@
+/* F1 Strategy Engine - Styles */
+:root {
+    --primary: #e10600;
+    --secondary: #15151e;
+    --accent: #ff8700;
+    --bg: #0a0a0f;
+    --card-bg: #1a1a24;
+    --text: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --border: #2a2a3a;
+    --success: #00d084;
+    --warning: #ffcc00;
+    --danger: #ff3860;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--primary);
+}
+
+header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.input-section, .output-section {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid var(--border);
+}
+
+h2 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.6rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    background: #c40500;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(225, 6, 0, 0.3);
+}
+
+.loading {
+    text-align: center;
+    padding: 3rem;
+}
+
+.spinner {
+    border: 4px solid var(--border);
+    border-top: 4px solid var(--primary);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.results {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.prediction-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+}
+
+.prediction-card.full-width {
+    grid-column: 1 / -1;
+}
+
+.prediction-card h3 {
+    color: var(--accent);
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+}
+
+.prediction-card .value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+    background: var(--border);
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 0.8rem;
+}
+
+.progress-fill {
+    height: 100%;
+    transition: width 0.5s ease, background-color 0.3s;
+}
+
+.progress-fill.low {
+    background: var(--success);
+}
+
+.progress-fill.medium {
+    background: var(--warning);
+}
+
+.progress-fill.high {
+    background: var(--danger);
+}
+
+.recommendation {
+    background: linear-gradient(135deg, var(--card-bg), var(--secondary));
+    border: 2px solid var(--primary);
+}
+
+.recommendation p {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.error {
+    background: var(--danger);
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 1024px) {
+    main {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    header h1 {
+        font-size: 2rem;
+    }
+}

@@ -1,0 +1,72 @@
+models:
+  m1:
+    name: "Lap_Time_Regressor"
+    target: "LapTimeSec"
+    algorithm: "LightGBM"
+    drop_columns:
+      - "Sector1TimeSec"
+      - "Sector2TimeSec"
+      - "Sector3TimeSec"
+      - "LapsUntilNextPit"
+      - "IsPersonalBest"
+      - "IsPitLap"
+    optuna_trials: 50
+
+  m2:
+    name: "Pit_Lap_Classifier"
+    target: "IsPitLap"
+    algorithm: "CatBoost"
+    drop_columns:
+      - "LapsUntilNextPit"
+      - "LapTimeSec"
+      - "Sector1TimeSec"
+      - "Sector2TimeSec"
+      - "Sector3TimeSec"
+      - "IsPersonalBest"
+    optuna_trials: 50
+    class_weight: "Balanced"
+
+  m3:
+    name: "Pit_In_3_Classifier"
+    target: "WillPitWithin3Laps"
+    algorithm: "CatBoost"
+    drop_columns:
+      - "IsPitLap"
+      - "LapTimeSec"
+      - "Sector1TimeSec"
+      - "Sector2TimeSec"
+      - "Sector3TimeSec"
+      - "IsPersonalBest"
+      - "DriverNumber"
+      - "RoundNumber"
+    optuna_trials: 50
+    class_weight: "Balanced"
+
+  m4:
+    name: "Long_Horizon_Regressor"
+    target: "LapsUntilNextPit"
+    algorithm: "CatBoost"
+    filter_condition: "exclude_pit_lap"  # Exclude LapsUntilNextPit == 1
+    drop_columns:
+      - "IsPitLap"
+      - "LapTimeSec"
+      - "Sector1TimeSec"
+      - "Sector2TimeSec"
+      - "Sector3TimeSec"
+      - "IsPersonalBest"
+    optuna_trials: 50
+
+  m5:
+    name: "Short_Horizon_Regressor"
+    target: "LapsUntilNextPit"
+    algorithm: "CatBoost"
+    filter_condition: "laps_until_pit_le_10"  # Only ≤10 laps
+    drop_columns:
+      - "IsPitLap"
+      - "LapTimeSec"
+      - "Sector1TimeSec"
+      - "Sector2TimeSec"
+      - "Sector3TimeSec"
+      - "IsPersonalBest"
+    optuna_trials: 50
+    sample_weights: true  # 3× weight for laps ≤3

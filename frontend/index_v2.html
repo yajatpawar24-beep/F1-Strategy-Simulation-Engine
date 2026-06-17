@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Strategy Engine v2.0</title>
+    <link rel="stylesheet" href="styles_v2.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏎️ F1 Strategy Engine v2.0</h1>
+            <p>Powered by 5 ML Models - Complete Race Strategy Analysis</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="predict">🔮 Predict</button>
+            <button class="tab-btn" data-tab="simulation">🏁 Race Sim</button>
+            <button class="tab-btn" data-tab="comparison">⚖️ Compare</button>
+            <button class="tab-btn" data-tab="models">📊 Models</button>
+        </nav>
+
+        <!-- Tab Content -->
+        <main>
+            <!-- Tab 1: Single Prediction -->
+            <div class="tab-content active" id="predict">
+                <h2>Single Lap Prediction</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Race Parameters</h3>
+                        <div class="form-compact">
+                            <div class="form-row">
+                                <label>Lap Number</label>
+                                <input type="number" id="lapNumber" value="20" min="1">
+                            </div>
+                            <div class="form-row">
+                                <label>Stint</label>
+                                <input type="number" id="stint" value="2" min="1">
+                            </div>
+                            <div class="form-row">
+                                <label>Tyre Life (laps)</label>
+                                <input type="number" id="tyreLife" value="12" min="0">
+                            </div>
+                            <div class="form-row">
+                                <label>Position</label>
+                                <input type="number" id="position" value="5" min="1" max="20">
+                            </div>
+                            <div class="form-row">
+                                <label>Grid Position</label>
+                                <input type="number" id="gridPosition" value="7" min="1" max="20">
+                            </div>
+                            <div class="form-row">
+                                <label>Compound</label>
+                                <select id="compound">
+                                    <option value="SOFT">Soft</option>
+                                    <option value="MEDIUM" selected>Medium</option>
+                                    <option value="HARD">Hard</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <label>Track Temp (°C)</label>
+                                <input type="number" id="trackTemp" value="45" step="0.1">
+                            </div>
+                            <div class="form-row">
+                                <label>Air Temp (°C)</label>
+                                <input type="number" id="airTemp" value="28" step="0.1">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <label>Driver</label>
+                            <input type="text" id="driver" value="VER" placeholder="3-letter code">
+                        </div>
+                        <div class="form-row">
+                            <label>Team</label>
+                            <input type="text" id="team" value="Red Bull Racing">
+                        </div>
+                        <div class="form-row">
+                            <label>Event</label>
+                            <input type="text" id="eventName" value="Monaco Grand Prix">
+                        </div>
+
+                        <button class="btn-primary" onclick="predictStrategy()">🔮 Predict Strategy</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>🏆 Strategic Predictions (ML + Physics)</h3>
+                        <div id="predictionResults" class="results-grid">
+                            <div class="result-card">
+                                <div class="result-label">Lap Time</div>
+                                <div class="result-value" id="predLapTime">--</div>
+                            </div>
+                            <div class="result-card">
+                                <div class="result-label">Tyre Wear %</div>
+                                <div class="result-value" id="predPitProb">--</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="predPitProbBar"></div>
+                                </div>
+                            </div>
+                            <div class="result-card">
+                                <div class="result-label">Pit Urgency</div>
+                                <div class="result-value" id="predPitIn3">--</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="predPitIn3Bar"></div>
+                                </div>
+                            </div>
+                            <div class="result-card">
+                                <div class="result-label">Optimal Pit Lap</div>
+                                <div class="result-value" id="predLapsUntil">--</div>
+                            </div>
+                            <div class="result-card full-width highlight">
+                                <div class="result-label">💡 Strategic Recommendation</div>
+                                <div class="result-value small" id="predRecommendation">Run prediction to see strategy recommendation</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Race Simulation -->
+            <div class="tab-content" id="simulation">
+                <h2>Full Race Simulation</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Simulation Parameters</h3>
+                        <div class="form-row">
+                            <label>Driver Code</label>
+                            <input type="text" id="simDriver" value="VER">
+                        </div>
+                        <div class="form-row">
+                            <label>Team</label>
+                            <input type="text" id="simTeam" value="Red Bull Racing">
+                        </div>
+                        <div class="form-row">
+                            <label>Event</label>
+                            <input type="text" id="simEvent" value="Monaco Grand Prix">
+                        </div>
+                        <div class="form-row">
+                            <label>Total Laps</label>
+                            <input type="number" id="simLaps" value="50" min="10" max="100">
+                        </div>
+                        <div class="form-row">
+                            <label>Starting Compound</label>
+                            <select id="simCompound">
+                                <option value="SOFT">Soft</option>
+                                <option value="MEDIUM" selected>Medium</option>
+                                <option value="HARD">Hard</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>Track Temperature</label>
+                            <input type="number" id="simTrackTemp" value="45" step="0.1">
+                        </div>
+
+                        <button class="btn-primary" onclick="simulateRace()">🏁 Simulate Race</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>Race Results</h3>
+                        <div id="simResults">
+                            <p class="placeholder">Run simulation to see results</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Tyre Comparison -->
+            <div class="tab-content" id="comparison">
+                <h2>Tyre Compound Comparison</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Comparison Parameters</h3>
+                        <div class="form-row">
+                            <label>Lap Number</label>
+                            <input type="number" id="compLap" value="20" min="1">
+                        </div>
+                        <div class="form-row">
+                            <label>Tyre Life</label>
+                            <input type="number" id="compTyreLife" value="15" min="0">
+                        </div>
+                        <div class="form-row">
+                            <label>Position</label>
+                            <input type="number" id="compPosition" value="5" min="1" max="20">
+                        </div>
+                        <div class="form-row">
+                            <label>Track Temperature</label>
+                            <input type="number" id="compTrackTemp" value="45" step="0.1">
+                        </div>
+                        <div class="form-row">
+                            <label>Driver</label>
+                            <input type="text" id="compDriver" value="VER">
+                        </div>
+                        <div class="form-row">
+                            <label>Team</label>
+                            <input type="text" id="compTeam" value="Red Bull Racing">
+                        </div>
+                        <div class="form-row">
+                            <label>Event</label>
+                            <input type="text" id="compEvent" value="Silverstone">
+                        </div>
+
+                        <button class="btn-primary" onclick="compareTyres()">⚖️ Compare Compounds</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>Comparison Results</h3>
+                        <div id="compResults">
+                            <p class="placeholder">Run comparison to see tyre performance</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Model Info -->
+            <div class="tab-content" id="models">
+                <h2>Model Information & Performance</h2>
+
+                <div class="card">
+                    <div class="button-group">
+                        <button class="btn-secondary" onclick="loadModelInfo()">📊 Load Model Info</button>
+                        <button class="btn-secondary" onclick="loadPerformance()">📈 Load Performance</button>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Model Details</h3>
+                        <div id="modelInfo">
+                            <p class="placeholder">Click "Load Model Info" to see details</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Performance Metrics</h3>
+                        <div id="modelPerformance">
+                            <p class="placeholder">Click "Load Performance" to see test metrics</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>API v2.0 | 5 Models: LightGBM + CatBoost | Test Year: 2024</p>
+        </footer>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+    </div>
+
+    <script src="app_v2.js"></script>
+</body>
+</html>

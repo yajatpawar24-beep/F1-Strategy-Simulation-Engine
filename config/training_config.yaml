@@ -1,0 +1,14 @@
+data:
+  raw_path: "data/processed/F1_Strategy_Prediction_Dataset.csv"  # Use enriched data
+  processed_path: "data/processed/F1_Strategy_Prediction_Dataset.csv"
+  train_end_year: 2023  # Only have 2023-2024 data
+  valid_year: 2023      # Use 80% of 2023 for train, 20% for validation
+  test_year: 2024       # 2024 as held-out test
+  cv_folds: 5
+
+mlflow:
+  experiment_name: "F1_Strategy_Engine"
+  tracking_uri: "file:./mlruns"
+
+registry:
+  model_dir: "data/registry"
