@@ -1,0 +1,52 @@
+# Development files
+requirements-dev.txt
+requirements-production.txt
+
+# Tests
+tests/
+scripts/test_*.py
+
+# Documentation
+*.md
+!README.md
+
+# Docker (not needed for Vercel)
+Dockerfile
+docker-compose.yml
+.dockerignore
+nginx.conf
+deploy.sh
+
+# Data (models will be included from data/registry/)
+data/raw/
+data/processed/
+
+# ML training artifacts
+mlruns/
+mlartifacts/
+
+# Development
+.vscode/
+.idea/
+*.ipynb
+.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore

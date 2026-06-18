@@ -1,4 +1,6 @@
-# F1 Strategy Engine - Production Dependencies
+# F1 Strategy Engine - Production Dependencies (API only)
+# Minimal dependencies for FastAPI deployment
+
 # Core API
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
