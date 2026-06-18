@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>F1 Strategy Engine | Race Predictor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#e2e2e2",
+                    "outline-variant": "#e9bcb5",
+                    "surface-container-low": "#f3f3f4",
+                    "on-error": "#ffffff",
+                    "surface": "#f9f9f9",
+                    "primary-container": "#e10600",
+                    "primary": "#b30400",
+                    "tertiary-container": "#6f7070",
+                    "on-primary-container": "#fff2f0",
+                    "on-primary-fixed-variant": "#930300",
+                    "on-tertiary-fixed-variant": "#464747",
+                    "background": "#f9f9f9",
+                    "on-tertiary-container": "#f5f5f4",
+                    "surface-container": "#eeeeee",
+                    "on-tertiary-fixed": "#1a1c1c",
+                    "primary-fixed-dim": "#ffb4a8",
+                    "secondary": "#5e5d68",
+                    "on-secondary-container": "#62616d",
+                    "surface-dim": "#dadada",
+                    "on-secondary-fixed": "#1b1b24",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-surface": "#2f3131",
+                    "on-primary-fixed": "#410100",
+                    "tertiary-fixed": "#e3e2e2",
+                    "on-surface": "#1a1c1c",
+                    "on-primary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#c6c6c6",
+                    "on-tertiary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-error-container": "#93000a",
+                    "secondary-container": "#e1deeb",
+                    "inverse-on-surface": "#f0f1f1",
+                    "secondary-fixed-dim": "#c7c5d2",
+                    "on-secondary-fixed-variant": "#464650",
+                    "surface-bright": "#f9f9f9",
+                    "secondary-fixed": "#e4e1ee",
+                    "outline": "#936e68",
+                    "surface-container-high": "#e8e8e8",
+                    "tertiary": "#565858",
+                    "inverse-primary": "#ffb4a8",
+                    "on-background": "#1a1c1c",
+                    "on-surface-variant": "#5e3f3a",
+                    "primary-fixed": "#ffdad4",
+                    "surface-variant": "#e2e2e2",
+                    "surface-tint": "#c00500",
+                    "on-secondary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "sm": "8px",
+                    "lg": "24px",
+                    "margin-mobile": "16px",
+                    "md": "16px",
+                    "gutter": "24px",
+                    "xs": "4px",
+                    "xl": "40px",
+                    "margin-desktop": "48px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "caption": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-bold": ["Inter"],
+                    "label-md": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "caption": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-bold": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9f9f9; color: #1a1c1c; }
+        .f1-border { border: 1px solid #E5E5E5; }
+        .f1-shadow { box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .gauge-ring { transition: stroke-dashoffset 0.35s; transform: rotate(-90deg); transform-origin: 50% 50%; }
+        .f1-red-accent { border-top: 3px solid #E10600; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-surface-container-lowest flex justify-between items-center w-full px-margin-desktop py-md max-w-full docked full-width top-0 border-b border-outline-variant z-50">
+<div class="flex items-center gap-xl">
+<h1 class="font-display-lg text-[24px] lg:text-[32px] font-black italic text-primary uppercase tracking-tighter">
+                F1 STRATEGY ENGINE
+            </h1>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="font-label-bold text-label-bold uppercase text-primary border-b-2 border-primary pb-base cursor-pointer active:opacity-80 transition-colors" href="#">Predict</a>
+<a class="font-label-bold text-label-bold uppercase text-secondary pb-base hover:text-primary cursor-pointer active:opacity-80 transition-colors" href="#">Race Sim</a>
+<a class="font-label-bold text-label-bold uppercase text-secondary pb-base hover:text-primary cursor-pointer active:opacity-80 transition-colors" href="#">Compare</a>
+<a class="font-label-bold text-label-bold uppercase text-secondary pb-base hover:text-primary cursor-pointer active:opacity-80 transition-colors" href="#">Models</a>
+</nav>
+</div>
+<div class="flex items-center">
+<span class="bg-primary-container text-on-primary-container px-sm py-xs font-label-bold text-[10px] tracking-widest rounded-lg">5 MODELS ACTIVE</span>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-margin-desktop py-xl">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Race Parameters -->
+<section class="lg:col-span-4 space-y-md">
+<div class="bg-white f1-border p-lg rounded shadow-sm f1-red-accent">
+<h2 class="font-label-bold text-label-bold uppercase mb-lg flex items-center gap-base">
+<span class="material-symbols-outlined text-[18px]">settings_input_component</span>
+                        Race Parameters
+                    </h2>
+<form class="space-y-md" onsubmit="return false;">
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Driver</label>
+<input class="w-full f1-border rounded px-md py-sm font-body-md focus:border-primary focus:ring-0 outline-none" type="text" value="Max Verstappen"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Team</label>
+<input class="w-full f1-border bg-surface-container-low rounded px-md py-sm font-body-md text-secondary cursor-not-allowed outline-none" readonly="" type="text" value="Red Bull Racing"/>
+</div>
+<div class="grid grid-cols-2 gap-sm">
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Circuit</label>
+<select class="w-full f1-border rounded px-md py-sm font-body-md focus:border-primary focus:ring-0 outline-none appearance-none">
+<option>Silverstone</option>
+<option>Monaco</option>
+<option>Spa-Francorchamps</option>
+<option>Suzuka</option>
+</select>
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Lap Number</label>
+<input class="w-full f1-border rounded px-md py-sm font-body-md focus:border-primary focus:ring-0 outline-none" type="number" value="22"/>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Tyre Compound</label>
+<div class="flex gap-sm">
+<button class="flex-1 flex flex-col items-center py-sm rounded f1-border border-2 border-primary-container bg-primary-container/5" type="button">
+<span class="w-3 h-3 rounded-full bg-[#E10600] mb-xs"></span>
+<span class="text-[10px] font-bold">SOFT</span>
+</button>
+<button class="flex-1 flex flex-col items-center py-sm rounded f1-border hover:bg-surface transition-colors" type="button">
+<span class="w-3 h-3 rounded-full bg-[#FFD700] mb-xs"></span>
+<span class="text-[10px] font-bold">MEDIUM</span>
+</button>
+<button class="flex-1 flex flex-col items-center py-sm rounded f1-border hover:bg-surface transition-colors" type="button">
+<span class="w-3 h-3 rounded-full bg-[#FFFFFF] border border-outline-variant mb-xs"></span>
+<span class="text-[10px] font-bold">HARD</span>
+</button>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary flex justify-between">
+<span>Tyre Life</span>
+<span class="text-primary">12 Laps</span>
+</label>
+<input class="w-full accent-primary-container h-1.5 bg-surface-container-highest rounded-lg cursor-pointer" type="range"/>
+</div>
+<div class="grid grid-cols-3 gap-sm">
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Pos.</label>
+<input class="w-full f1-border rounded px-sm py-sm font-body-md text-center" type="text" value="P1"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Trk Temp</label>
+<input class="w-full f1-border rounded px-sm py-sm font-body-md text-center" type="text" value="34°C"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Air Temp</label>
+<input class="w-full f1-border rounded px-sm py-sm font-body-md text-center" type="text" value="22°C"/>
+</div>
+</div>
+<button class="w-full bg-primary-container text-white py-md font-label-bold text-label-bold uppercase tracking-widest hover:bg-primary transition-all active:scale-[0.98] mt-lg flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+                            Predict Strategy
+                        </button>
+</form>
+</div>
+<div class="bg-surface-container-lowest f1-border p-md rounded flex items-center gap-md">
+<img class="w-16 h-16 object-cover rounded grayscale hover:grayscale-0 transition-all duration-500" data-alt="A side-profile macro photography shot of a sleek F1 Pirelli soft red tyre with visible rubber graining detail. The lighting is cinematic, highlighting the technical texture of the compound against a clean studio white background with high-contrast red accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtmu6tFOCQW1NTl5k1D2WU_OsmF-S7PxfpbuZwmbaERE3HPmCY4g_m7OBIcJ6GDuZtIBjkM-ciIdYPCiDszYiN-VQWyDM8Inyhb4fYqpSU33AF3M2vT9Jqwj8jlIuD2x2Ww6uEbZB917lzHAbNzAUMeo8hRnJvAzniX5VzahG4hfauFTTKGRHxP-4w9tExZuJaYNRNCwjfUeSuCk6BBmODAbrtnPrEQUKt1Y2a2Rw6w_xXU_oFNy9op5xNjbb69CwRYuzMzxNcabtm"/>
+<div>
+<h4 class="font-label-bold text-[12px] uppercase">Telemetry Active</h4>
+<p class="font-caption text-secondary">Real-time data feed from Sector 2.</p>
+</div>
+</div>
+</section>
+<!-- Right Column: Dashboard Grid -->
+<section class="lg:col-span-8 space-y-gutter">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Card 1: Lap Time -->
+<div class="bg-white f1-border p-lg rounded f1-shadow hover:translate-y-[-2px] transition-transform cursor-default">
+<header class="flex justify-between items-start mb-md">
+<span class="font-label-bold text-[11px] uppercase text-secondary">Lap Time</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">timer</span>
+</header>
+<div class="flex items-end gap-sm">
+<span class="font-display-lg text-[40px] leading-none font-black italic text-on-surface">1:23.456</span>
+<span class="font-label-bold text-error mb-base">-0.142</span>
+</div>
+<p class="font-caption text-secondary mt-base">Last lap vs Expected</p>
+</div>
+<!-- Card 2: Tyre Wear -->
+<div class="bg-white f1-border p-lg rounded f1-shadow hover:translate-y-[-2px] transition-transform cursor-default">
+<header class="flex justify-between items-start mb-md">
+<span class="font-label-bold text-[11px] uppercase text-secondary">Tyre Wear</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">tire_repair</span>
+</header>
+<div class="flex items-end justify-between">
+<span class="font-display-lg text-[40px] leading-none font-black italic text-on-surface">67%</span>
+<div class="w-1/2 h-2 bg-surface-container-highest rounded-full overflow-hidden mb-lg">
+<div class="h-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 w-[67%]"></div>
+</div>
+</div>
+<p class="font-caption text-secondary mt-base">Estimated life remaining: 14 laps</p>
+</div>
+<!-- Card 3: Pit Urgency -->
+<div class="bg-white f1-border p-lg rounded f1-shadow flex items-center justify-between">
+<div>
+<header class="mb-md">
+<span class="font-label-bold text-[11px] uppercase text-secondary">Pit Urgency</span>
+</header>
+<span class="font-display-lg text-[40px] leading-none font-black italic text-on-surface">72<span class="text-[20px] opacity-50">/100</span></span>
+<p class="font-caption text-error mt-sm flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+                                Degradation accelerating
+                            </p>
+</div>
+<div class="relative w-24 h-24">
+<svg class="w-full h-full" viewbox="0 0 100 100">
+<circle class="text-surface-container-highest stroke-current" cx="50" cy="50" fill="transparent" r="40" stroke-width="8"></circle>
+<circle class="text-primary stroke-current gauge-ring" cx="50" cy="50" fill="transparent" r="40" stroke-dasharray="251.2" stroke-dashoffset="70.3" stroke-linecap="butt" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[28px]">garage</span>
+</div>
+</div>
+</div>
+<!-- Card 4: Optimal Pit Lap -->
+<div class="bg-white f1-border p-lg rounded f1-shadow">
+<header class="flex justify-between items-start mb-md">
+<span class="font-label-bold text-[11px] uppercase text-secondary">Optimal Pit Lap</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">event_repeat</span>
+</header>
+<div class="flex items-baseline gap-sm">
+<span class="font-display-lg text-[40px] leading-none font-black italic text-on-surface">Lap 28</span>
+</div>
+<div class="mt-md bg-primary-container/10 text-primary-container px-md py-sm rounded font-label-bold text-[14px] inline-block">
+                            IN 6 LAPS
+                        </div>
+</div>
+<!-- Card 5: Recommendation (Full Width) -->
+<div class="md:col-span-2 bg-white f1-border rounded f1-shadow overflow-hidden">
+<div class="bg-surface-container px-lg py-md flex justify-between items-center border-b f1-border">
+<h3 class="font-label-bold text-label-bold uppercase">Strategic Recommendation</h3>
+<div class="flex gap-md">
+<div class="flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="font-caption text-[10px] uppercase">Plan A</span>
+</div>
+<div class="flex items-center gap-xs opacity-50">
+<span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+<span class="font-caption text-[10px] uppercase">Plan B</span>
+</div>
+</div>
+</div>
+<div class="p-lg grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="md:col-span-2 space-y-md">
+<div class="p-md bg-surface-container-low rounded border-l-4 border-primary">
+<p class="font-body-md text-on-surface leading-relaxed">
+                                        Data suggests a <span class="font-bold">Plan A (One-Stop)</span> remains the fastest route to the finish. Maintain current pace for 6 laps. Avoid aggressive curb usage at Copse to preserve front-left integrity. Expected pit window opens at Lap 27.
+                                    </p>
+</div>
+<div class="flex gap-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-green-600">check_circle</span>
+<span class="font-label-md text-secondary">Pace Delta: +0.4s</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-yellow-600">info</span>
+<span class="font-label-md text-secondary">Traffic risk: Low</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-sm">
+<div class="f1-border rounded p-md bg-surface-bright flex items-center justify-between">
+<span class="font-label-bold text-[11px] uppercase">Est. Finish</span>
+<span class="font-bold text-primary">P1</span>
+</div>
+<div class="f1-border rounded p-md bg-surface-bright flex items-center justify-between">
+<span class="font-label-bold text-[11px] uppercase">Pit Duration</span>
+<span class="font-bold">2.4s</span>
+</div>
+<div class="f1-border rounded p-md bg-surface-bright flex items-center justify-between">
+<span class="font-label-bold text-[11px] uppercase">Gap to P2</span>
+<span class="font-bold">+14.2s</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Visualization Area -->
+<div class="relative h-64 bg-white f1-border rounded f1-shadow overflow-hidden group">
+<div class="absolute top-md left-lg z-10">
+<h4 class="font-label-bold text-[12px] uppercase">Degradation Curve vs Rival (Hamilton)</h4>
+</div>
+<div class="absolute inset-0 flex items-end justify-between px-lg pb-lg opacity-10">
+<!-- Grid Lines -->
+<div class="h-full w-px bg-on-surface"></div>
+<div class="h-full w-px bg-on-surface"></div>
+<div class="h-full w-px bg-on-surface"></div>
+<div class="h-full w-px bg-on-surface"></div>
+</div>
+<svg class="absolute inset-0 w-full h-full p-lg overflow-visible" preserveaspectratio="none">
+<!-- Path for Primary Data -->
+<path class="opacity-80" d="M0 40 Q 200 45, 400 80 T 800 180" fill="none" stroke="#E10600" stroke-width="3"></path>
+<!-- Path for Rival -->
+<path d="M0 60 Q 250 80, 500 140 T 800 220" fill="none" stroke="#5e5d68" stroke-dasharray="4 2" stroke-width="2"></path>
+</svg>
+<div class="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent"></div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-sm px-margin-desktop flex justify-center items-center bg-surface-container border-t border-outline-variant mt-auto">
+<p class="font-caption text-secondary uppercase tracking-widest opacity-60">
+            API v2.0 | Powered by 5 ML Models | Test Year: 2024
+        </p>
+</footer>
+<script>
+        // Simple Interaction logic
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Flash feedback
+                btn.style.opacity = '0.7';
+                setTimeout(() => btn.style.opacity = '1', 100);
+            });
+        });
+
+        // Dynamic Gauge update simulation
+        const gauge = document.querySelector('.gauge-ring');
+        if (gauge) {
+            const radius = gauge.r.baseVal.value;
+            const circumference = 2 * Math.PI * radius;
+            const percentage = 72;
+            const offset = circumference - (percentage / 100) * circumference;
+            gauge.style.strokeDashoffset = offset;
+        }
+    </script>
+</body></html>

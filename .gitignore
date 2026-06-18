@@ -74,3 +74,10 @@ temp/
 # OS
 Thumbs.db
 .DS_Store
+
+# Docker
+*.tar
+docker-compose.override.yml
+
+# Claude
+.claude/

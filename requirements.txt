@@ -13,3 +13,4 @@ shap>=0.43.0
 pyyaml>=6.0
 matplotlib>=3.7.0
 seaborn>=0.12.0
+requests>=2.31.0

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Strategy Engine | Race Predictor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <link rel="stylesheet" href="styles_v3.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-content">
+            <div class="spinner-race">
+                <div class="spinner-track"></div>
+                <div class="spinner-car"></div>
+            </div>
+            <p class="loading-text">PROCESSING TELEMETRY...</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="logo-container">
+                    <div class="logo-accent"></div>
+                    <h1 class="logo-text">F1 STRATEGY ENGINE</h1>
+                    <div class="logo-underline"></div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-badge">
+                    <span class="status-indicator"></span>
+                    <span class="status-text">5 MODELS ACTIVE</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        <div class="grid-layout">
+
+            <!-- Left Column: Input Form -->
+            <section class="input-section">
+                <div class="card input-card">
+                    <div class="card-header">
+                        <span class="material-symbols-outlined">settings</span>
+                        <h2>RACE PARAMETERS</h2>
+                    </div>
+
+                    <form id="strategyForm" class="strategy-form">
+                        <!-- Driver Selection -->
+                        <div class="form-group">
+                            <label for="driver" class="form-label">
+                                <span class="label-text">DRIVER</span>
+                                <span class="label-code">DR</span>
+                            </label>
+                            <select id="driver" class="form-input form-select" required>
+                                <option value="VER">VER - Max Verstappen</option>
+                                <option value="HAM">HAM - Lewis Hamilton</option>
+                                <option value="LEC">LEC - Charles Leclerc</option>
+                                <option value="NOR">NOR - Lando Norris</option>
+                                <option value="PIA">PIA - Oscar Piastri</option>
+                                <option value="SAI">SAI - Carlos Sainz</option>
+                                <option value="PER">PER - Sergio Perez</option>
+                                <option value="RUS">RUS - George Russell</option>
+                                <option value="ALO">ALO - Fernando Alonso</option>
+                                <option value="STR">STR - Lance Stroll</option>
+                            </select>
+                        </div>
+
+                        <!-- Team Display -->
+                        <div class="form-group">
+                            <label for="team" class="form-label">
+                                <span class="label-text">TEAM</span>
+                                <span class="label-code">TM</span>
+                            </label>
+                            <input id="team" type="text" class="form-input form-input-readonly" value="Red Bull Racing" readonly>
+                        </div>
+
+                        <!-- Circuit & Lap -->
+                        <div class="form-group-row">
+                            <div class="form-group flex-1">
+                                <label for="eventName" class="form-label">
+                                    <span class="label-text">CIRCUIT</span>
+                                    <span class="label-code">CR</span>
+                                </label>
+                                <select id="eventName" class="form-input form-select" required>
+                                    <option value="Monte Carlo">Monaco</option>
+                                    <option value="Silverstone">Silverstone</option>
+                                    <option value="Spa-Francorchamps">Spa-Francorchamps</option>
+                                    <option value="Monza">Monza</option>
+                                    <option value="Suzuka">Suzuka</option>
+                                    <option value="Austin">Circuit of the Americas</option>
+                                </select>
+                            </div>
+                            <div class="form-group flex-half">
+                                <label for="lapNumber" class="form-label">
+                                    <span class="label-text">LAP</span>
+                                    <span class="label-code">LP</span>
+                                </label>
+                                <input id="lapNumber" type="number" class="form-input form-input-mono" value="20" min="1" max="70" required>
+                            </div>
+                        </div>
+
+                        <!-- Position -->
+                        <div class="form-group">
+                            <label for="position" class="form-label">
+                                <span class="label-text">POSITION</span>
+                                <span class="label-code">PS</span>
+                            </label>
+                            <input id="position" type="number" class="form-input form-input-mono" value="5" min="1" max="20" required>
+                        </div>
+
+                        <!-- Tyre Compound -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-text">TYRE COMPOUND</span>
+                                <span class="label-code">TC</span>
+                            </label>
+                            <div class="tyre-selector">
+                                <button type="button" class="tyre-btn" data-compound="SOFT">
+                                    <span class="tyre-indicator tyre-soft"></span>
+                                    <span class="tyre-label">SOFT</span>
+                                </button>
+                                <button type="button" class="tyre-btn tyre-btn-active" data-compound="MEDIUM">
+                                    <span class="tyre-indicator tyre-medium"></span>
+                                    <span class="tyre-label">MEDIUM</span>
+                                </button>
+                                <button type="button" class="tyre-btn" data-compound="HARD">
+                                    <span class="tyre-indicator tyre-hard"></span>
+                                    <span class="tyre-label">HARD</span>
+                                </button>
+                            </div>
+                            <input type="hidden" id="compound" value="MEDIUM">
+                        </div>
+
+                        <!-- Tyre Life Slider -->
+                        <div class="form-group">
+                            <label for="tyreLife" class="form-label">
+                                <span class="label-text">TYRE LIFE</span>
+                                <span class="label-value" id="tyreLifeDisplay">12 LAPS</span>
+                            </label>
+                            <input id="tyreLife" type="range" class="slider" min="0" max="40" value="12">
+                            <div class="slider-markers">
+                                <span>0</span>
+                                <span>10</span>
+                                <span>20</span>
+                                <span>30</span>
+                                <span>40</span>
+                            </div>
+                        </div>
+
+                        <!-- Temperature Inputs -->
+                        <div class="form-group-row">
+                            <div class="form-group flex-1">
+                                <label for="trackTemp" class="form-label">
+                                    <span class="label-text">TRACK TEMP</span>
+                                    <span class="label-code">TT</span>
+                                </label>
+                                <div class="input-with-unit">
+                                    <input id="trackTemp" type="number" class="form-input form-input-mono" value="45" min="0" max="70" required>
+                                    <span class="input-unit">°C</span>
+                                </div>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="airTemp" class="form-label">
+                                    <span class="label-text">AIR TEMP</span>
+                                    <span class="label-code">AT</span>
+                                </label>
+                                <div class="input-with-unit">
+                                    <input id="airTemp" type="number" class="form-input form-input-mono" value="28" min="0" max="50" required>
+                                    <span class="input-unit">°C</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn-predict">
+                            <span class="btn-icon material-symbols-outlined">bolt</span>
+                            <span class="btn-text">PREDICT STRATEGY</span>
+                            <span class="btn-glow"></span>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Right Column: Results -->
+            <section class="results-section">
+                <!-- Results Grid -->
+                <div class="results-grid">
+                    <!-- Lap Time Card -->
+                    <div class="card result-card">
+                        <div class="result-header">
+                            <span class="result-label">LAP TIME</span>
+                            <span class="material-symbols-outlined">timer</span>
+                        </div>
+                        <div class="result-value" id="predLapTime">
+                            <span class="value-main">--</span>
+                            <span class="value-unit">sec</span>
+                        </div>
+                        <div class="result-footer">Predicted lap time</div>
+                    </div>
+
+                    <!-- Tyre Wear Card -->
+                    <div class="card result-card">
+                        <div class="result-header">
+                            <span class="result-label">TYRE WEAR</span>
+                            <span class="material-symbols-outlined">donut_small</span>
+                        </div>
+                        <div class="result-value" id="predTyreWear">
+                            <span class="value-main">--</span>
+                            <span class="value-unit">%</span>
+                        </div>
+                        <div class="wear-bar">
+                            <div class="wear-fill" id="predTyreWearBar" style="width: 0%"></div>
+                        </div>
+                        <div class="result-footer">Degradation level</div>
+                    </div>
+
+                    <!-- Pit Urgency Card -->
+                    <div class="card result-card">
+                        <div class="result-header">
+                            <span class="result-label">PIT URGENCY</span>
+                            <span class="material-symbols-outlined">warning</span>
+                        </div>
+                        <div class="result-value" id="predPitUrgency">
+                            <span class="value-main">--</span>
+                            <span class="value-unit">/100</span>
+                        </div>
+                        <div class="result-footer">Urgency score</div>
+                    </div>
+
+                    <!-- Optimal Pit Lap Card -->
+                    <div class="card result-card">
+                        <div class="result-header">
+                            <span class="result-label">OPTIMAL PIT</span>
+                            <span class="material-symbols-outlined">flag</span>
+                        </div>
+                        <div class="result-value" id="predOptimalPit">
+                            <span class="value-main">--</span>
+                            <span class="value-unit">lap</span>
+                        </div>
+                        <div class="result-footer">Best lap to pit</div>
+                    </div>
+                </div>
+
+                <!-- Recommendation Card -->
+                <div class="card recommendation-card">
+                    <div class="recommendation-header">
+                        <span class="material-symbols-outlined">lightbulb</span>
+                        <h3>STRATEGIC RECOMMENDATION</h3>
+                    </div>
+                    <div class="recommendation-content" id="predRecommendation">
+                        <p>Run prediction to see strategy recommendation</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-info">
+                <span class="footer-label">API VERSION</span>
+                <span class="footer-value">2.0</span>
+            </div>
+            <div class="footer-divider"></div>
+            <div class="footer-info">
+                <span class="footer-label">MODELS</span>
+                <span class="footer-value">5 ACTIVE</span>
+            </div>
+            <div class="footer-divider"></div>
+            <div class="footer-info">
+                <span class="footer-label">TEST YEAR</span>
+                <span class="footer-value">2024</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app_v3.js"></script>
+</body>
+</html>

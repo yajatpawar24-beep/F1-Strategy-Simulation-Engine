@@ -1,6 +1,7 @@
-// F1 Strategy Engine - Stitch Design with Full API Integration
+// F1 Strategy Engine - Production Frontend
 const API_URL = 'http://localhost:8000';
 
+// Driver-to-Team mapping
 const DRIVER_TEAMS = {
     'VER': 'Red Bull Racing', 'PER': 'Red Bull Racing',
     'HAM': 'Mercedes', 'RUS': 'Mercedes',
@@ -14,30 +15,33 @@ const DRIVER_TEAMS = {
     'TSU': 'RB', 'RIC': 'RB', 'LAW': 'RB'
 };
 
-// Driver selection - auto update team
-document.getElementById('driver').addEventListener('change', (e) => {
-    const driver = e.target.value;
-    document.getElementById('team').value = DRIVER_TEAMS[driver] || 'Unknown';
-});
-
-// Tyre compound selection
-document.querySelectorAll('.tyre-btn').forEach(btn => {
+// Tab Navigation
+document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        document.querySelectorAll('.tyre-btn').forEach(b => {
-            b.classList.remove('border-2', 'border-primary-container', 'bg-primary-container/5');
-            b.classList.add('hover:bg-surface');
-        });
-        btn.classList.add('border-2', 'border-primary-container', 'bg-primary-container/5');
-        btn.classList.remove('hover:bg-surface');
-        document.getElementById('compound').value = btn.dataset.compound;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        
+        btn.classList.add('tab-active');
+        document.getElementById(btn.dataset.tab).classList.remove('hidden');
     });
 });
 
-// Tyre life slider
-document.getElementById('tyreLife').addEventListener('input', (e) => {
-    document.getElementById('tyreLifeDisplay').textContent = `${e.target.value} Laps`;
+// Tyre Compound Selection
+document.querySelectorAll('.tyre-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+        document.querySelectorAll('.tyre-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        document.getElementById('compound').value = pill.dataset.compound;
+    });
 });
 
+// Driver Selection - Auto-update Team
+document.getElementById('driver').addEventListener('change', (e) => {
+    const driver = e.target.value;
+    document.getElementById('team').value = DRIVER_TEAMS[driver] || 'UNKNOWN';
+});
+
+// Loading Overlay
 function showLoading() {
     document.getElementById('loadingOverlay').classList.remove('hidden');
 }
@@ -46,6 +50,7 @@ function hideLoading() {
     document.getElementById('loadingOverlay').classList.add('hidden');
 }
 
+// Main Prediction Function
 async function predictStrategy() {
     showLoading();
 
@@ -62,7 +67,7 @@ async function predictStrategy() {
         CompoundCode: compoundMap[compound],
         FreshTyre: 0,
         TrackTemp: parseFloat(document.getElementById('trackTemp').value),
-        AirTemp: parseFloat(document.getElementById('airTemp').value),
+        AirTemp: 28.0,
         WindSpeed: 2.5,
         Rainfall: 0,
         IsSC: 0,
@@ -102,12 +107,21 @@ async function predictStrategy() {
 
         const result = await response.json();
 
-        // Update results
-        document.getElementById('predLapTime').textContent = `${result.lap_time_sec.toFixed(3)}s`;
-        document.getElementById('predTyreWear').textContent = `${result.tyre_wear_pct.toFixed(1)}%`;
-        document.getElementById('predTyreWearBar').style.width = `${result.tyre_wear_pct}%`;
+        // Display results
+        document.getElementById('predLapTime').textContent = `${result.lap_time_sec.toFixed(2)}s`;
+        
+        const tyreWear = result.tyre_wear_pct.toFixed(1);
+        document.getElementById('predTyreWear').textContent = `${tyreWear}%`;
+        
+        const tyreWearBar = document.getElementById('predTyreWearBar');
+        tyreWearBar.style.width = `${tyreWear}%`;
+        tyreWearBar.className = `progress-bar-fill h-4 rounded-full transition-all duration-500 ${getUrgencyClass(result.pit_urgency)}`;
+        
         document.getElementById('predPitUrgency').textContent = `${result.pit_urgency.toFixed(0)}/100`;
+        
+        const lapsUntil = result.optimal_pit_lap - raceState.LapNumber;
         document.getElementById('predOptimalPit').textContent = `Lap ${result.optimal_pit_lap}`;
+        
         document.getElementById('predRecommendation').textContent = result.recommendation;
 
     } catch (error) {
@@ -118,4 +132,11 @@ async function predictStrategy() {
     }
 }
 
-console.log('F1 Strategy Engine - Stitch Design Loaded');
+function getUrgencyClass(urgency) {
+    if (urgency >= 80) return 'high';
+    if (urgency >= 60) return 'medium';
+    return 'low';
+}
+
+// Initialize
+console.log('F1 Strategy Engine loaded - Production version');

@@ -1,173 +1,308 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>F1 Strategy Engine</title>
-    <link rel="stylesheet" href="styles.css">
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>F1 Strategy Engine | Race Predictor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#e2e2e2",
+                    "outline-variant": "#e9bcb5",
+                    "surface-container-low": "#f3f3f4",
+                    "on-error": "#ffffff",
+                    "surface": "#f9f9f9",
+                    "primary-container": "#e10600",
+                    "primary": "#b30400",
+                    "tertiary-container": "#6f7070",
+                    "on-primary-container": "#fff2f0",
+                    "background": "#f9f9f9",
+                    "on-tertiary-container": "#f5f5f4",
+                    "surface-container": "#eeeeee",
+                    "primary-fixed-dim": "#ffb4a8",
+                    "secondary": "#5e5d68",
+                    "on-secondary-container": "#62616d",
+                    "surface-dim": "#dadada",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-surface": "#2f3131",
+                    "tertiary-fixed": "#e3e2e2",
+                    "on-surface": "#1a1c1c",
+                    "on-primary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#c6c6c6",
+                    "on-tertiary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-error-container": "#93000a",
+                    "secondary-container": "#e1deeb",
+                    "inverse-on-surface": "#f0f1f1",
+                    "secondary-fixed-dim": "#c7c5d2",
+                    "surface-bright": "#f9f9f9",
+                    "secondary-fixed": "#e4e1ee",
+                    "outline": "#936e68",
+                    "surface-container-high": "#e8e8e8",
+                    "tertiary": "#565858",
+                    "inverse-primary": "#ffb4a8",
+                    "on-background": "#1a1c1c",
+                    "on-surface-variant": "#5e3f3a",
+                    "primary-fixed": "#ffdad4",
+                    "surface-variant": "#e2e2e2",
+                    "surface-tint": "#c00500",
+                    "on-secondary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "sm": "8px",
+                    "lg": "24px",
+                    "margin-mobile": "16px",
+                    "md": "16px",
+                    "gutter": "24px",
+                    "xs": "4px",
+                    "xl": "40px",
+                    "margin-desktop": "48px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "caption": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-bold": ["Inter"],
+                    "label-md": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "caption": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-bold": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9f9f9; color: #1a1c1c; }
+        .f1-border { border: 1px solid #E5E5E5; }
+        .f1-shadow { box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .f1-red-accent { border-top: 3px solid #E10600; }
+        .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .spinner { width: 60px; height: 60px; border: 5px solid #E5E5E5; border-top-color: #E10600; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>🏎️ F1 Strategy Engine</h1>
-            <p>Real-time race strategy predictions powered by ML</p>
-        </header>
+<body class="min-h-screen flex flex-col">
 
-        <main>
-            <div class="input-section">
-                <h2>Race State Input</h2>
-                <form id="predictionForm">
-                    <div class="form-grid">
-                        <!-- Lap Info -->
-                        <div class="form-group">
-                            <label>Lap Number</label>
-                            <input type="number" id="LapNumber" value="20" min="1" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Stint</label>
-                            <input type="number" id="Stint" value="2" min="1" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Tyre Life (laps)</label>
-                            <input type="number" id="TyreLife" value="12" min="0" required>
-                        </div>
-
-                        <!-- Position -->
-                        <div class="form-group">
-                            <label>Position</label>
-                            <input type="number" id="Position" value="5" min="1" max="20" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Grid Position</label>
-                            <input type="number" id="GridPosition" value="7" min="1" max="20" required>
-                        </div>
-
-                        <!-- Tyre -->
-                        <div class="form-group">
-                            <label>Compound</label>
-                            <select id="Compound" required>
-                                <option value="SOFT">Soft</option>
-                                <option value="MEDIUM" selected>Medium</option>
-                                <option value="HARD">Hard</option>
-                                <option value="INTERMEDIATE">Intermediate</option>
-                                <option value="WET">Wet</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Compound Code</label>
-                            <input type="number" id="CompoundCode" value="2" min="0" max="4" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Fresh Tyre</label>
-                            <select id="FreshTyre" required>
-                                <option value="0" selected>No</option>
-                                <option value="1">Yes</option>
-                            </select>
-                        </div>
-
-                        <!-- Weather -->
-                        <div class="form-group">
-                            <label>Track Temp (°C)</label>
-                            <input type="number" id="TrackTemp" value="45" step="0.1" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Air Temp (°C)</label>
-                            <input type="number" id="AirTemp" value="28" step="0.1" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Wind Speed</label>
-                            <input type="number" id="WindSpeed" value="2.5" step="0.1" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Rainfall</label>
-                            <select id="Rainfall" required>
-                                <option value="0" selected>No</option>
-                                <option value="1">Yes</option>
-                            </select>
-                        </div>
-
-                        <!-- Race Control -->
-                        <div class="form-group">
-                            <label>Safety Car</label>
-                            <select id="IsSC" required>
-                                <option value="0" selected>No</option>
-                                <option value="1">Yes</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>DRS Available</label>
-                            <select id="IsDRS" required>
-                                <option value="0">No</option>
-                                <option value="1" selected>Yes</option>
-                            </select>
-                        </div>
-
-                        <!-- Identifiers -->
-                        <div class="form-group">
-                            <label>Team</label>
-                            <input type="text" id="Team" value="Red Bull Racing" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Driver</label>
-                            <input type="text" id="Driver" value="Max Verstappen" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Event Name</label>
-                            <input type="text" id="EventName" value="Monaco Grand Prix" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Year</label>
-                            <input type="number" id="Year" value="2024" min="2020" max="2030" required>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-primary">🔮 Predict Strategy</button>
-                </form>
-            </div>
-
-            <div class="output-section">
-                <h2>Predictions</h2>
-                <div id="loading" class="loading" style="display: none;">
-                    <div class="spinner"></div>
-                    <p>Running predictions...</p>
-                </div>
-                <div id="results" class="results" style="display: none;">
-                    <div class="prediction-card">
-                        <h3>⏱️ Lap Time</h3>
-                        <p class="value" id="lapTime">--</p>
-                    </div>
-                    <div class="prediction-card">
-                        <h3>🛞 Pit Probability</h3>
-                        <p class="value" id="pitProb">--</p>
-                        <div class="progress-bar">
-                            <div id="pitProbBar" class="progress-fill"></div>
-                        </div>
-                    </div>
-                    <div class="prediction-card">
-                        <h3>⏳ Pit in 3 Laps</h3>
-                        <p class="value" id="pitIn3">--</p>
-                        <div class="progress-bar">
-                            <div id="pitIn3Bar" class="progress-fill"></div>
-                        </div>
-                    </div>
-                    <div class="prediction-card">
-                        <h3>📊 Laps Until Pit</h3>
-                        <p class="value" id="lapsUntil">--</p>
-                    </div>
-                    <div class="prediction-card full-width recommendation">
-                        <h3>💡 Strategy Recommendation</h3>
-                        <p id="recommendation">--</p>
-                    </div>
-                </div>
-                <div id="error" class="error" style="display: none;"></div>
-            </div>
-        </main>
-
-        <footer>
-            <p>Built with LightGBM, CatBoost, Optuna, MLflow & FastAPI</p>
-        </footer>
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="text-center">
+        <div class="spinner"></div>
+        <p class="text-white mt-4 font-bold">Processing...</p>
     </div>
+</div>
 
-    <script src="app.js"></script>
-</body>
-</html>
+<!-- Header -->
+<header class="bg-surface-container-lowest flex justify-between items-center w-full px-margin-desktop py-md max-w-full border-b border-outline-variant z-50">
+<div class="flex items-center gap-xl">
+<h1 class="font-display-lg text-[24px] lg:text-[32px] font-black italic text-primary uppercase tracking-tighter">
+                F1 STRATEGY ENGINE
+            </h1>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="font-label-bold text-label-bold uppercase text-primary border-b-2 border-primary pb-base cursor-pointer">Predict</a>
+</nav>
+</div>
+<div class="flex items-center">
+<span class="bg-primary-container text-on-primary-container px-sm py-xs font-label-bold text-[10px] tracking-widest rounded-lg">5 MODELS ACTIVE</span>
+</div>
+</header>
+
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-margin-desktop py-xl">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+
+<!-- Left Column: Race Parameters -->
+<section class="lg:col-span-4 space-y-md">
+<div class="bg-white f1-border p-lg rounded shadow-sm f1-red-accent">
+<h2 class="font-label-bold text-label-bold uppercase mb-lg flex items-center gap-base">
+<span class="material-symbols-outlined text-[18px]">settings_input_component</span>
+                        Race Parameters
+                    </h2>
+<form class="space-y-md" onsubmit="return false;">
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Driver</label>
+<select id="driver" class="w-full f1-border rounded px-md py-sm font-body-md focus:border-primary focus:ring-0 outline-none">
+<option value="VER">VER - Verstappen</option>
+<option value="HAM">HAM - Hamilton</option>
+<option value="LEC">LEC - Leclerc</option>
+<option value="NOR">NOR - Norris</option>
+<option value="PIA">PIA - Piastri</option>
+<option value="SAI">SAI - Sainz</option>
+<option value="PER">PER - Perez</option>
+<option value="RUS">RUS - Russell</option>
+<option value="ALO">ALO - Alonso</option>
+<option value="STR">STR - Stroll</option>
+</select>
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Team</label>
+<input id="team" class="w-full f1-border bg-surface-container-low rounded px-md py-sm font-body-md text-secondary cursor-not-allowed outline-none" readonly type="text" value="Red Bull Racing"/>
+</div>
+<div class="grid grid-cols-2 gap-sm">
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Circuit</label>
+<select id="eventName" class="w-full f1-border rounded px-md py-sm font-body-md focus:border-primary focus:ring-0 outline-none">
+<option value="Monte Carlo">Monaco</option>
+<option value="Silverstone">Silverstone</option>
+<option value="Spa-Francorchamps">Spa</option>
+<option value="Monza">Monza</option>
+<option value="Suzuka">Suzuka</option>
+<option value="Austin">Austin</option>
+</select>
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Lap Number</label>
+<input id="lapNumber" class="w-full f1-border rounded px-md py-sm font-body-md focus:border-primary focus:ring-0 outline-none" type="number" value="20"/>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Tyre Compound</label>
+<div class="flex gap-sm">
+<button id="tyreSoft" class="tyre-btn flex-1 flex flex-col items-center py-sm rounded f1-border hover:bg-surface transition-colors" type="button" data-compound="SOFT">
+<span class="w-3 h-3 rounded-full bg-[#E10600] mb-xs"></span>
+<span class="text-[10px] font-bold">SOFT</span>
+</button>
+<button id="tyreMedium" class="tyre-btn flex-1 flex flex-col items-center py-sm rounded f1-border border-2 border-primary-container bg-primary-container/5" type="button" data-compound="MEDIUM">
+<span class="w-3 h-3 rounded-full bg-[#FFD700] mb-xs"></span>
+<span class="text-[10px] font-bold">MEDIUM</span>
+</button>
+<button id="tyreHard" class="tyre-btn flex-1 flex flex-col items-center py-sm rounded f1-border hover:bg-surface transition-colors" type="button" data-compound="HARD">
+<span class="w-3 h-3 rounded-full bg-[#FFFFFF] border border-outline-variant mb-xs"></span>
+<span class="text-[10px] font-bold">HARD</span>
+</button>
+</div>
+<input type="hidden" id="compound" value="MEDIUM">
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary flex justify-between">
+<span>Tyre Life</span>
+<span class="text-primary" id="tyreLifeDisplay">12 Laps</span>
+</label>
+<input id="tyreLife" class="w-full accent-primary-container h-1.5 bg-surface-container-highest rounded-lg cursor-pointer" type="range" min="0" max="40" value="12"/>
+</div>
+<div class="grid grid-cols-3 gap-sm">
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Pos.</label>
+<input id="position" class="w-full f1-border rounded px-sm py-sm font-body-md text-center" type="number" min="1" max="20" value="5"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Trk Temp</label>
+<input id="trackTemp" class="w-full f1-border rounded px-sm py-sm font-body-md text-center" type="number" value="45"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-[11px] uppercase text-secondary">Air Temp</label>
+<input id="airTemp" class="w-full f1-border rounded px-sm py-sm font-body-md text-center" type="number" value="28"/>
+</div>
+</div>
+<button onclick="predictStrategy()" class="w-full bg-primary-container text-white py-md font-label-bold text-label-bold uppercase tracking-widest hover:bg-primary transition-all active:scale-[0.98] mt-lg flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+                            Predict Strategy
+                        </button>
+</form>
+</div>
+</section>
+
+<!-- Right Column: Results -->
+<section class="lg:col-span-8 space-y-gutter">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+
+<!-- Lap Time -->
+<div class="bg-white f1-border p-lg rounded f1-shadow hover:translate-y-[-2px] transition-transform">
+<header class="flex justify-between items-start mb-md">
+<span class="font-label-bold text-[11px] uppercase text-secondary">Lap Time</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">timer</span>
+</header>
+<div class="flex items-end gap-sm">
+<span id="predLapTime" class="font-display-lg text-[40px] leading-none font-black italic text-on-surface">--</span>
+</div>
+<p class="font-caption text-secondary mt-base">Predicted lap time</p>
+</div>
+
+<!-- Tyre Wear -->
+<div class="bg-white f1-border p-lg rounded f1-shadow hover:translate-y-[-2px] transition-transform">
+<header class="flex justify-between items-start mb-md">
+<span class="font-label-bold text-[11px] uppercase text-secondary">Tyre Wear</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">donut_small</span>
+</header>
+<div class="flex items-end gap-sm mb-md">
+<span id="predTyreWear" class="font-display-lg text-[40px] leading-none font-black italic text-on-surface">--</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-2">
+<div id="predTyreWearBar" class="h-2 rounded-full bg-primary-container transition-all duration-500" style="width: 0%"></div>
+</div>
+</div>
+
+<!-- Pit Urgency -->
+<div class="bg-white f1-border p-lg rounded f1-shadow hover:translate-y-[-2px] transition-transform">
+<header class="flex justify-between items-start mb-md">
+<span class="font-label-bold text-[11px] uppercase text-secondary">Pit Urgency</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">warning</span>
+</header>
+<div class="flex items-end gap-sm">
+<span id="predPitUrgency" class="font-display-lg text-[40px] leading-none font-black italic text-on-surface">--</span>
+</div>
+<p class="font-caption text-secondary mt-base">Urgency score /100</p>
+</div>
+
+<!-- Optimal Pit Lap -->
+<div class="bg-white f1-border p-lg rounded f1-shadow hover:translate-y-[-2px] transition-transform">
+<header class="flex justify-between items-start mb-md">
+<span class="font-label-bold text-[11px] uppercase text-secondary">Optimal Pit Lap</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">flag</span>
+</header>
+<div class="flex items-end gap-sm">
+<span id="predOptimalPit" class="font-display-lg text-[40px] leading-none font-black italic text-on-surface">--</span>
+</div>
+<p class="font-caption text-secondary mt-base">Best lap to pit</p>
+</div>
+
+</div>
+
+<!-- Recommendation Card -->
+<div class="bg-white f1-border p-lg rounded f1-shadow">
+<header class="flex justify-between items-start mb-md">
+<span class="font-label-bold text-[11px] uppercase text-secondary">Strategic Recommendation</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">lightbulb</span>
+</header>
+<p id="predRecommendation" class="font-body-lg text-on-surface leading-relaxed">
+Run prediction to see strategy recommendation
+</p>
+</div>
+
+</section>
+
+</div>
+</main>
+
+<footer class="bg-surface-container-lowest border-t border-outline-variant py-md text-center">
+<p class="font-caption text-secondary">API v2.0 | Powered by 5 ML Models | Test Year: 2024</p>
+</footer>
+
+<script src="app.js"></script>
+</body></html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+<!-- STITCH_THREEJS_START:ANIMATION_15 class="fixed inset-0 w-full h-full bg-transparent" -->
+<div class="fixed inset-0 w-full h-full bg-transparent" style="display:block;">
+<script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
+<div id="threejs-container-ANIMATION_15" style="width:100%;height:100%"></div>
+<script>
+(function() {
+  const container = document.getElementById('threejs-container-ANIMATION_15');
+  const devicePixelRatio = window.devicePixelRatio || 1;
+  const width = container.clientWidth || 300;
+const height = container.clientHeight || 300;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+camera.position.set(4, 3, 4);
+camera.lookAt(0, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+renderer.setSize(width, height);
+renderer.setPixelRatio(window.devicePixelRatio);
+container.appendChild(renderer.domElement);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 10, 7.5);
+scene.add(directionalLight);
+
+// Using a group to hold the car for rotation
+const carGroup = new THREE.Group();
+scene.add(carGroup);
+
+// Simple representation of an F1 car silhouette using primitives since we can't load external models
+// Body
+const bodyGeom = new THREE.BoxGeometry(2.5, 0.3, 0.8);
+const bodyMat = new THREE.MeshPhongMaterial({ color: 0x0600ef }); // Red Bull Navy
+const body = new THREE.Mesh(bodyGeom, bodyMat);
+carGroup.add(body);
+
+// Nose
+const noseGeom = new THREE.BoxGeometry(1, 0.15, 0.4);
+const nose = new THREE.Mesh(noseGeom, bodyMat);
+nose.position.x = 1.7;
+carGroup.add(nose);
+
+// Front Wing
+const wingGeom = new THREE.BoxGeometry(0.2, 0.05, 1.8);
+const wingMat = new THREE.MeshPhongMaterial({ color: 0x15151e });
+const frontWing = new THREE.Mesh(wingGeom, wingMat);
+frontWing.position.x = 2.2;
+carGroup.add(frontWing);
+
+// Rear Wing
+const rearWing = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.4, 1.2), wingMat);
+rearWing.position.x = -1.1;
+rearWing.position.y = 0.3;
+carGroup.add(rearWing);
+
+// Wheels
+const wheelGeom = new THREE.CylinderGeometry(0.35, 0.35, 0.3, 32);
+const wheelMat = new THREE.MeshPhongMaterial({ color: 0x333333 });
+const positions = [
+    [1.2, -0.1, 0.6], [1.2, -0.1, -0.6],
+    [-0.8, -0.1, 0.7], [-0.8, -0.1, -0.7]
+];
+positions.forEach(pos => {
+    const wheel = new THREE.Mesh(wheelGeom, wheelMat);
+    wheel.rotation.x = Math.PI / 2;
+    wheel.position.set(...pos);
+    carGroup.add(wheel);
+});
+
+function animate() {
+    requestAnimationFrame(animate);
+    carGroup.rotation.y += 0.005;
+    renderer.render(scene, camera);
+}
+
+window.addEventListener('resize', () => {
+    const w = container.clientWidth || window.innerWidth;
+    const h = container.clientHeight || window.innerHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+});
+
+animate();
+})();
+</script>
+</div>
+<!-- STITCH_THREEJS_END:ANIMATION_15 -->
+</body>
+</html>
