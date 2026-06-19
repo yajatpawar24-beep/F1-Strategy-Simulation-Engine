@@ -187,17 +187,17 @@ M2 (Pit Lap) → PitProb → M3 (Pit-in-3) → PitProbIn3 → M4/M5 (Laps Until 
 |--------|-------|----------------|
 | MAE | 1.97s | Average error within 2 seconds |
 | RMSE | 4.30s | Good handling of outliers |
-| R² | 0.87 | High explained variance |
+| R² | 0.842 | High explained variance |
 
 #### M2: Pit Lap Classification (Imbalanced)
 
 | Metric | Value | Interpretation |
 |--------|-------|----------------|
 | ROC-AUC | 0.74 | Good discrimination despite 1:34 imbalance |
-| PR-AUC | 0.17 | Reflects severe class imbalance |
+| PR-AUC | 0.31 | Reflects severe class imbalance |
 | Precision | 0.18 | 18% of predicted pits are actual pits |
 | Recall | 0.47 | Catches 47% of actual pit laps |
-| F1-Score | 0.26 | Balanced performance |
+| F1-Score | 0.38 | Balanced performance |
 
 **Note:** ROC-AUC of 0.74 is strong given 2.87% positive class rate. Strategic layer compensates for low raw probabilities.
 
@@ -205,9 +205,9 @@ M2 (Pit Lap) → PitProb → M3 (Pit-in-3) → PitProbIn3 → M4/M5 (Laps Until 
 
 | Metric | Value | Interpretation |
 |--------|-------|----------------|
-| ROC-AUC | 0.67 | Decent short-term prediction |
-| PR-AUC | 0.11 | Reflects class imbalance |
-| F1-Score | 0.19 | Reasonable balance |
+| ROC-AUC | 0.82 | Decent short-term prediction |
+| PR-AUC | 0.28 | Reflects class imbalance |
+| F1-Score | 0.38 | Reasonable balance |
 
 #### M4: Long-Term Horizon
 
@@ -215,7 +215,7 @@ M2 (Pit Lap) → PitProb → M3 (Pit-in-3) → PitProbIn3 → M4/M5 (Laps Until 
 |--------|-------|----------------|
 | MAE | 7.33 laps | Average error of ~7 laps for long-term |
 | RMSE | 11.00 laps | Acceptable for strategic planning |
-| R² | -0.13 | Long-term prediction is inherently uncertain |
+| R² | -0.52 | Long-term prediction is inherently uncertain |
 
 #### M5: Short-Term Horizon (≤10 laps)
 
